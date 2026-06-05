@@ -33,12 +33,12 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Lint with flake8
-        run: flake8 api/ dashboard/ tests/ --max-line-length=120
+        run: flake8 api/ dashboard/ tests/ test_routes.py --max-line-length=120
 
       - name: Run tests with coverage
         env:
           API_KEY: test-secret-key
-        run: pytest tests/ -v --cov=api --cov-fail-under=75 --cov-report=xml
+        run: pytest tests/ test_routes.py -v --cov=api --cov-fail-under=75 --cov-report=xml
 
       - name: Upload coverage report
         uses: actions/upload-artifact@v4
