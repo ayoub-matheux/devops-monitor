@@ -1,6 +1,5 @@
 """Route tests using FastAPI TestClient."""
 
-import pytest
 from fastapi.testclient import TestClient
 
 from api.main import app

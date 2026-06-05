@@ -38,7 +38,7 @@ with tab_metrics:
             resp = requests.get(f"{API_BASE}/metrics", timeout=3)
             resp.raise_for_status()
             return resp.json()
-        except Exception as e:
+        except Exception:
             return {}
 
     placeholder = st.empty()

@@ -1,7 +1,5 @@
 """Unit tests for api/metrics.py."""
 
-import pytest
-
 from api.metrics import get_system_metrics
 
 
