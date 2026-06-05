@@ -1,11 +1,13 @@
 """Route tests using FastAPI TestClient."""
 
+import os
+
 from fastapi.testclient import TestClient
 
 from api.main import app
 
 client = TestClient(app)
-VALID_KEY = "dev-secret-key"
+VALID_KEY = os.getenv("API_KEY", "dev-secret-key")
 AUTH = {"X-API-Key": VALID_KEY}
 
 
