@@ -1,53 +1,56 @@
-# DevOps Monitor
+# DevOps Monitoring Dashboard
 
-A real-time DevOps Monitoring Dashboard built with FastAPI + Streamlit.
+A real-time DevOps monitoring system built with FastAPI + Streamlit, containerized with Docker, and deployed on Azure via GitHub Actions CI/CD.
 
-## Structure
+## Architecture
 
 ```
-devops-monitor/
-├── api/
-│   ├── main.py       # FastAPI app (routes, WebSocket, lifespan)
-│   ├── metrics.py    # psutil helper
-│   ├── auth.py       # API key dependency
-│   ├── models.py     # Pydantic schemas + Server dataclass
-│   └── poller.py     # Background health-check loop
-├── dashboard/
-│   └── app.py        # Streamlit frontend
-├── tests/
-│   ├── test_metrics.py
-│   └── test_routes.py
-├── requirements.txt
-└── README.md
+GitHub Actions CI/CD
+  ├── lint (flake8)
+  ├── test (pytest --cov ≥ 75%)
+  ├── build & push → Azure Container Registry
+  └── deploy → Azure Container Apps
+       ├── devops-monitor-api       (FastAPI — port 8000)
+       └── devops-monitor-dashboard (Streamlit — port 8501)
 ```
 
-## Local Setup
+## Prerequisites
+
+- Python 3.11
+- Docker & Docker Compose
+- Make
+
+## Quick Start (< 5 minutes)
 
 ```bash
-# 1. Create and activate venv
-python -m venv venv
-source venv/bin/activate      # Windows: venv\Scripts\activate
+git clone https://github.com/<your-username>/devops-monitor.git
+cd devops-monitor
 
-# 2. Install dependencies
-pip install -r requirements.txt
-
-# 3. (Optional) Set API key
-export API_KEY=my-secret-key  # Windows: set API_KEY=my-secret-key
+cp .env.example .env    # fill in API_KEY value
+make up                 # starts the full stack
+make test               # runs tests
 ```
 
-## Running
+- API: http://localhost:8000/docs
+- Dashboard: http://localhost:8501
 
-**Terminal 1 — API:**
-```bash
-uvicorn api.main:app --reload --port 8000
-```
+## Environment Variables
 
-**Terminal 2 — Dashboard:**
-```bash
-streamlit run dashboard/app.py
-```
+| Variable | Description | Example |
+|----------|-------------|---------|
+| `API_KEY` | API access key for protected endpoints | `my-secret-key` |
+| `API_BASE` | API URL as seen by the dashboard | `http://api:8000` (Docker) or `http://localhost:8000` (local) |
 
-Open http://localhost:8501 in your browser.
+## Makefile Commands
+
+| Command | Description |
+|---------|-------------|
+| `make up` | Start full stack with Docker Compose |
+| `make down` | Stop and remove containers |
+| `make logs` | Follow container logs |
+| `make test` | Run tests with coverage >= 75% |
+| `make lint` | Lint with flake8 |
+| `make dev` | Run without Docker (local dev) |
 
 ## API Endpoints
 
@@ -56,15 +59,25 @@ Open http://localhost:8501 in your browser.
 | GET | `/health` | public | Health check |
 | GET | `/metrics` | public | System metrics snapshot |
 | WS | `/ws/metrics` | public | Live metrics stream |
-| GET | `/servers` | public | List servers (`?status=UP`) |
-| GET | `/servers/{id}` | public | Get one server |
+| GET | `/servers` | public | List servers |
 | POST | `/servers` | API key | Register a server |
 | DELETE | `/servers/{id}` | API key | Remove a server |
 | POST | `/servers/{id}/check` | public | Trigger health check |
 
-## Tests
+## Live URLs (Azure)
 
-```bash
-pytest tests/ -v
-pytest tests/ --cov=api --cov-report=term-missing
-```
+> To be filled after Azure deployment.
+
+- API: `https://<api>.<env>.azurecontainerapps.io/docs`
+- Dashboard: `https://<dashboard>.<env>.azurecontainerapps.io`
+
+## GitHub Secrets (CI/CD)
+
+| Secret | Description |
+|--------|-------------|
+| `AZURE_CLIENT_ID` | App registration client ID |
+| `AZURE_CLIENT_SECRET` | App registration secret |
+| `AZURE_TENANT_ID` | Azure tenant ID |
+| `AZURE_SUBSCRIPTION_ID` | Subscription ID |
+| `ACR_NAME` | Container registry name (without `.azurecr.io`) |
+| `API_KEY` | API key injected into Container Apps |
